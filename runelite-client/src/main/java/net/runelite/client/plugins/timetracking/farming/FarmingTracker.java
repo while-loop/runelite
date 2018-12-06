@@ -33,6 +33,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
@@ -43,6 +44,7 @@ import net.runelite.client.plugins.timetracking.SummaryState;
 import net.runelite.client.plugins.timetracking.Tab;
 import net.runelite.client.plugins.timetracking.TimeTrackingConfig;
 
+@Slf4j
 @Singleton
 public class FarmingTracker
 {
@@ -267,8 +269,11 @@ public class FarmingTracker
 
 	private void updateNotifier(FarmingPatch patch, long completionTime)
 	{
-		if (completionTime < System.currentTimeMillis())
+		long now = Instant.now().getEpochSecond();
+		if (completionTime < now)
 		{
+			log.debug("not sending farming patch {}:{} {}/{}", completionTime, now,
+					patch.getRegion().getName(), patch.getImplementation().name());
 			// get send items that are in the future
 			return;
 		}
