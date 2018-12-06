@@ -24,17 +24,21 @@
  */
 package net.runelite.client.plugins.timetracking.farming;
 
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
+
 import net.runelite.api.Client;
 import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins.timetracking.Notifier;
 import net.runelite.client.plugins.timetracking.SummaryState;
 import net.runelite.client.plugins.timetracking.Tab;
 import net.runelite.client.plugins.timetracking.TimeTrackingConfig;
@@ -58,7 +62,7 @@ public class FarmingTracker
 
 	@Inject
 	private FarmingTracker(Client client, ItemManager itemManager, ConfigManager configManager,
-		TimeTrackingConfig config, FarmingWorld farmingWorld)
+						   TimeTrackingConfig config, FarmingWorld farmingWorld)
 	{
 		this.client = client;
 		this.itemManager = itemManager;
@@ -221,6 +225,7 @@ public class FarmingTracker
 					{
 						long tickTime = unixTime / tickrate;
 						long doneEstimate = ((stages - 1 - stage) + tickTime) * tickrate;
+						updateNotifier(patch, doneEstimate);
 						maxCompletionTime = Math.max(maxCompletionTime, doneEstimate);
 					}
 					else if (state.getCropState() == CropState.GROWING && stage != stages - 1)
@@ -258,5 +263,22 @@ public class FarmingTracker
 			summaries.put(tab.getKey(), state);
 			completionTimes.put(tab.getKey(), completionTime);
 		}
+	}
+
+	private void updateNotifier(FarmingPatch patch, long completionTime)
+	{
+		if (completionTime < System.currentTimeMillis())
+		{
+			// get send items that are in the future
+			return;
+		}
+
+		JsonObject body = new JsonObject();
+		body.addProperty("username", client.getUsername());
+		body.addProperty("region", patch.getRegion().getName());
+		body.addProperty("patch", patch.getName());
+		body.addProperty("type", patch.getImplementation().name());
+		body.addProperty("ttl", completionTime);
+		Notifier.updateNotifier(body, "/patches");
 	}
 }

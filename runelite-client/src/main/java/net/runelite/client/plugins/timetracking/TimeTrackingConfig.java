@@ -36,6 +36,7 @@ public interface TimeTrackingConfig extends Config
 	String BIRD_HOUSE = "birdhouse";
 	String TIMERS = "timers";
 	String STOPWATCHES = "stopwatches";
+	String NOTIFIER_URL = "https://8701n63lmk.execute-api.us-east-1.amazonaws.com/dev";
 
 	@ConfigItem(
 		keyName = "estimateRelative",
@@ -68,6 +69,17 @@ public interface TimeTrackingConfig extends Config
 	default boolean birdHouseNotification()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		keyName = "number",
+		name = "Phone number",
+		description = "Phone number for SMS (with country code) notifications. ex: +18881239876",
+		position = 4
+	)
+	default String number()
+	{
+		return "";
 	}
 
 	@ConfigItem(
