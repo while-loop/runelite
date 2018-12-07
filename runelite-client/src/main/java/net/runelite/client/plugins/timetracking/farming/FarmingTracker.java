@@ -269,12 +269,14 @@ public class FarmingTracker
 
 	private void updateNotifier(FarmingPatch patch, long completionTime)
 	{
+		int stateValue = getStateValue(patch);
 		long now = Instant.now().getEpochSecond();
-		if (completionTime < now)
+		PatchState state = patch.getImplementation().forVarbitValue(stateValue);
+		if (completionTime < now && (state == null || state.getCropState() == CropState.HARVESTABLE || state.getCropState() == CropState.GROWING))
 		{
 			log.debug("not sending farming patch {}:{} {}/{}", completionTime, now,
 					patch.getRegion().getName(), patch.getImplementation().name());
-			// get send items that are in the future
+			// dont send harvaestable patches in the past.. allows for diseased plants to be updated
 			return;
 		}
 
@@ -283,7 +285,38 @@ public class FarmingTracker
 		body.addProperty("region", patch.getRegion().getName());
 		body.addProperty("patch", patch.getName());
 		body.addProperty("type", patch.getImplementation().name());
+		body.addProperty("state", (state == null) ? "" : state.getCropState().name());
+		body.addProperty("produce", (state == null) ? "" : state.getProduce().name());
 		body.addProperty("ttl", completionTime);
 		Notifier.updateNotifier(body, "/patches");
+	}
+
+	private int getStateValue(FarmingPatch patch)
+	{
+		String group = TimeTrackingConfig.CONFIG_GROUP + "." + client.getUsername() + "." + patch.getRegion().getRegionID();
+		String key = Integer.toString(patch.getVarbit().getId());
+		String storedValue = configManager.getConfiguration(group, key);
+		long unixTime = 0;
+		int value = 0;
+
+		if (storedValue != null)
+		{
+			String[] parts = storedValue.split(":");
+			if (parts.length == 2)
+			{
+				try
+				{
+					value = Integer.parseInt(parts[0]);
+					unixTime = Long.parseLong(parts[1]);
+				}
+				catch (NumberFormatException e)
+				{
+					// ignored
+				}
+			}
+		}
+
+		return value;
+
 	}
 }
