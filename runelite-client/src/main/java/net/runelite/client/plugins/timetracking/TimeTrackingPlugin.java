@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import javax.swing.*;
 
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
@@ -49,6 +50,8 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.CONFIG_GROUP;
 import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.STOPWATCHES;
 import static net.runelite.client.plugins.timetracking.TimeTrackingConfig.TIMERS;
@@ -129,6 +132,7 @@ public class TimeTrackingPlugin extends Plugin
 		clientToolbar.addNavigation(navButton);
 
 		panelUpdateFuture = executorService.scheduleAtFixedRate(this::updatePanel, 200, 200, TimeUnit.MILLISECONDS);
+		Notifier.updateNumber(client.getUsername(), config.number());
 	}
 
 	@Override
@@ -164,7 +168,19 @@ public class TimeTrackingPlugin extends Plugin
 		}
 		else if (e.getKey().equalsIgnoreCase("number"))
 		{
-			Notifier.updateNumber(client.getUsername(), e.getNewValue());
+			String number = e.getNewValue().trim();
+			if ((number.isEmpty() || number.startsWith("+")) && !client.getUsername().isEmpty())
+			{
+				Notifier.updateNumber(client.getUsername(), number);
+			}
+			else if (!number.startsWith("+"))
+			{
+				e.setNewValue("");
+				e.setOldValue("");
+				JOptionPane.showMessageDialog(null,
+						"Phone number must start with +COUNTRY_CODE",
+						"Invalid Number", ERROR_MESSAGE);
+			}
 		}
 	}
 
