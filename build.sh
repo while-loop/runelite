@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
-
+# git fetch --all --tags
+# git rebase tags/runelite-parent-1.5.5
 VERSION=`grep -nri "<tag>" pom.xml | grep -oE '(\d+\.\d+\.\d+)'`
 echo VERSION $VERSION
 
