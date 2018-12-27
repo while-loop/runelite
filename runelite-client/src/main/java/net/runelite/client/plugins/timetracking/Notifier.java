@@ -2,6 +2,7 @@ package net.runelite.client.plugins.timetracking;
 
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.client.RuneLiteProperties;
 import net.runelite.http.api.RuneLiteAPI;
 import okhttp3.*;
 
@@ -10,12 +11,13 @@ import java.io.IOException;
 @Slf4j
 public class Notifier
 {
+	private static String notifierUrl = new RuneLiteProperties().getOsrsNotifier();
 
 	public static void updateNotifier(JsonObject body, String path)
 	{
 		log.debug("updateNotifier {}", body);
 		Request request = new Request.Builder()
-				.url(TimeTrackingConfig.NOTIFIER_URL + path)
+				.url(notifierUrl + path)
 				.put(RequestBody.create(JSON, body.toString()))
 				.build();
 		send(request);
@@ -30,7 +32,7 @@ public class Notifier
 		body.addProperty("number", number);
 		log.debug("updateNumber {}", body);
 		Request request = new Request.Builder()
-				.url(TimeTrackingConfig.NOTIFIER_URL + "/users")
+				.url(notifierUrl + "/users")
 				.put(RequestBody.create(JSON, body.toString()))
 				.build();
 		send(request);
@@ -55,7 +57,7 @@ public class Notifier
 					return;
 				}
 
-				log.error("got unknown response {}", String.valueOf(response.body()));
+				log.error("got unknown response {}", String.valueOf(response.body().string()));
 				response.close();
 			}
 		});

@@ -36,7 +36,6 @@ public interface TimeTrackingConfig extends Config
 	String BIRD_HOUSE = "birdhouse";
 	String TIMERS = "timers";
 	String STOPWATCHES = "stopwatches";
-	String NOTIFIER_URL = "https://8701n63lmk.execute-api.us-east-1.amazonaws.com/dev";
 
 	@ConfigItem(
 		keyName = "estimateRelative",

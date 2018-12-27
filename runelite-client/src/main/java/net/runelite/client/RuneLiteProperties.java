@@ -40,6 +40,7 @@ public class RuneLiteProperties
 	private static final String RUNELITE_VERSION = "runelite.version";
 	private static final String RUNESCAPE_VERSION = "runescape.version";
 	private static final String DISCORD_APP_ID = "runelite.discord.appid";
+	private static final String OSRS_NOTIFIER = "osrs.notifier";
 	private static final String DISCORD_INVITE = "runelite.discord.invite";
 	private static final String GITHUB_LINK = "runelite.github.link";
 	private static final String WIKI_LINK = "runelite.wiki.link";
@@ -89,6 +90,10 @@ public class RuneLiteProperties
 	public String getGithubLink()
 	{
 		return properties.getProperty(GITHUB_LINK);
+	}
+	public String getOsrsNotifier()
+	{
+		return properties.getProperty(OSRS_NOTIFIER);
 	}
 
 	public String getWikiLink()
